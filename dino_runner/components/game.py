@@ -3,6 +3,7 @@ import pygame
 from dino_runner.utils.constants import BG, ICON, SCREEN_HEIGHT, SCREEN_WIDTH, TITLE, FPS
 from dino_runner.components.dinosaurio import Dinosaur
 from dino_runner.components.obstacles.obstacle_manager import ObstacleManager
+from dino_runner.components.obstacles.text_utils import get_score_element, get_centered_message, get_number_deaths
 
 class Game:
     def __init__(self):
@@ -17,15 +18,25 @@ class Game:
         self.y_pos_bg = 380
         self.player = Dinosaur()
         self.obstacle_manager = ObstacleManager()
+        self.running = True
+        self.points = 0
+        self.death_count = 0
 
     def run(self):
         # Game loop: events - update - draw
+        self.obstacle_manager.reset_obstacles()
         self.playing = True
         while self.playing:
             self.events()
             self.update()
             self.draw()
-        pygame.quit()
+
+
+    def execute(self):
+        while self.running:
+            if not self.playing:
+                self.show_menu()
+
 
     def events(self):
         for event in pygame.event.get():
@@ -38,6 +49,7 @@ class Game:
         self.obstacle_manager.update(self)
 
     def draw(self):
+        self.score = 0
         self.clock.tick(FPS)
         self.screen.fill((255, 255, 255))
         self.draw_background()
@@ -45,6 +57,51 @@ class Game:
         self.obstacle_manager.draw(self.screen)
         pygame.display.update()
         pygame.display.flip()
+
+    def score(self):
+        self.points += 1
+        if self.points % 100 == 0:
+            self.game_speed += 1
+
+        score.score_rect = get_score_element(self.points)
+        self.screen.blit(score, score_rect)
+
+
+    def show_menu(self):
+        self.running = True
+        white_color = (255, 255, 255)
+        self.screen.fill(white_color)
+
+        self.print_menu_elements(self.death_count)
+
+        ##the view of the game is updates
+        pygame.display.update()
+
+        self.handle_key_events_on_menu()
+
+    def print_menu_elements(self, death_count=0):
+
+        ## They are optional
+        half_screen_heigth = SCREEN_HEIGHT//2
+        half_screen_width = SCREEN_WIDTH//2
+        ##print("Muertes:{} ".format(self.death_count))
+        text1, text_rect_1 = get_number_deaths('Muertes : {}'.format(self.death_count))
+        text, text_rect = get_centered_message('Press any key to start the game')
+        self.screen.blit(text1, text_rect_1)
+        self.screen.blit(text, text_rect)
+
+
+    def handle_key_events_on_menu(self):
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                self.running = False
+                self.playing = False
+                pygame.display.quit()
+                pygame.quit()
+                exit()
+            if event.type == pygame.KEYDOWN:
+                self.run()
+
 
     def draw_background(self):
         image_width = BG.get_width()

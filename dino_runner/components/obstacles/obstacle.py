@@ -1,5 +1,5 @@
 from pygame.sprite import Sprite
-from dino_runner.utils.constants import LARGE_CACTUS, SCREEN_WIDTH,SCREEN_HEIGHT
+from dino_runner.utils.constants import SCREEN_WIDTH
 
 
 class Obstacle(Sprite):
@@ -9,7 +9,7 @@ class Obstacle(Sprite):
         self.type = type
         self.rect = self.image[self.type].get_rect()
         self.rect.x = SCREEN_WIDTH
-        self.rect.y = 330
+
 
 
 
@@ -21,6 +21,6 @@ class Obstacle(Sprite):
 
 
     def draw(self, screen):
-        screen.blit(self.image[self.type], (self.rect.x, self.rect.y))
+        screen.blit(self.image[self.type], self.rect)
 
 
