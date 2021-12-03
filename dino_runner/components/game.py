@@ -1,9 +1,12 @@
 import pygame
 
-from dino_runner.utils.constants import BG, ICON, SCREEN_HEIGHT, SCREEN_WIDTH, TITLE, FPS
+from dino_runner.utils.constants import BG, ICON, SCREEN_HEIGHT, SCREEN_WIDTH, TITLE, FPS, LIVES, HEART
 from dino_runner.components.dinosaurio import Dinosaur
 from dino_runner.components.obstacles.obstacle_manager import ObstacleManager
 from dino_runner.components.obstacles.text_utils import get_score_element, get_centered_message, get_number_deaths
+from dino_runner.components.lives import Lives
+from dino_runner.components.power_ups.power_up_manager import PowerUpManager
+
 
 class Game:
     def __init__(self):
@@ -17,19 +20,28 @@ class Game:
         self.x_pos_bg = 0
         self.y_pos_bg = 380
         self.player = Dinosaur()
+        self.heart = Lives()
         self.obstacle_manager = ObstacleManager()
         self.running = True
         self.points = 0
         self.death_count = 0
+        self.powerup_manager = PowerUpManager()
 
     def run(self):
+        self.game_speed = 20
+        self.lives = LIVES
+        self.lives_list = [700, 750, 800, 850, 900]
         # Game loop: events - update - draw
-        self.obstacle_manager.reset_obstacles()
+        self.create_components()
         self.playing = True
         while self.playing:
             self.events()
             self.update()
             self.draw()
+
+    def create_components(self):
+        self.obstacle_manager.reset_obstacles()
+        self.powerup_manager.reset_power_ups(self.points)
 
 
     def execute(self):
@@ -47,14 +59,18 @@ class Game:
         user_input = pygame.key.get_pressed()
         self.player.update(user_input)
         self.obstacle_manager.update(self)
+        self.powerup_manager.update(self.points, self.game_speed,self.player)
 
     def draw(self):
-        self.score = 0
+
         self.clock.tick(FPS)
         self.screen.fill((255, 255, 255))
         self.draw_background()
+        self.score()
         self.player.draw(self.screen)
         self.obstacle_manager.draw(self.screen)
+        self.powerup_manager.draw(self.screen)
+        self.heart.draw(self.screen, self)
         pygame.display.update()
         pygame.display.flip()
 
@@ -63,8 +79,13 @@ class Game:
         if self.points % 100 == 0:
             self.game_speed += 1
 
-        score.score_rect = get_score_element(self.points)
+        score, score_rect = get_score_element(self.points)
+
         self.screen.blit(score, score_rect)
+
+        self.player.check_invincibility(self.screen)
+
+
 
 
     def show_menu(self):

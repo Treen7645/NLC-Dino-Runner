@@ -2,6 +2,7 @@ import pygame.draw_py
 
 from dino_runner.components.obstacles.cactus import Cactus
 from dino_runner.utils.constants import SMALL_CACTUS
+from dino_runner.components.lives import Lives
 
 
 class ObstacleManager:
@@ -18,11 +19,12 @@ class ObstacleManager:
             obstacle.update(game.game_speed, self.obstacles)
 
             if game.player.dino_rect.colliderect(obstacle.rect):
-                pygame.time.delay(500)
-                game.death_count += 1
-                game.playing = False
-                break
-
+                if not game.player.shield:
+                    Lives().update(game)
+                    self.obstacles.remove(obstacle)
+                    break
+                else:
+                    self.obstacles.remove(obstacle)
 
 
     def draw(self, screen):
