@@ -1,6 +1,5 @@
 import random
 import pygame
-
 from dino_runner.components.power_ups.shield import Shield
 
 

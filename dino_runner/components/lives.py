@@ -1,35 +1,14 @@
-import pygame
-import pygame.draw
-
 from dino_runner.utils.constants import HEART
 from pygame.sprite import Sprite
 
 
 class Lives(Sprite):
-    X_POS = 750
-    Y_POS = 20
-
-    def __init__(self):
+    def __init__(self, pos_x):
         self.image = HEART
-        self.rect = self.image.get_rect()
-        self.rect.x = self.X_POS
-        self.rect.y = self.Y_POS
+        self.pos_x = pos_x
+        self.life_rect = self.image.get_rect()
+        self.life_rect.x = self.pos_x
+        self.life_rect.y = 20
 
-    def update(self, game):
-        if game.lives > 0:
-            game.lives -= 1
-            self.take_life(game.lives, game)
-        else:
-            pygame.time.delay(500)
-            game.playing = False
-            game.death_count += 1
-            game.points = 0
-
-    def draw(self, screen, game):
-        for live in game.lives_list:
-            self.rect.x = live
-            screen.blit(self.image, (self.rect.x, self.rect.y))
-
-    def take_life(self, position, game):
-        if len(game.lives_list) != 0:
-            game.lives_list.pop(position)
+    def draw(self, screen):
+        screen.blit(self.image, (self.life_rect.x, self.life_rect.y))
